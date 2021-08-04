@@ -1,38 +1,47 @@
 server {
 
-        root /var/www/html;
-
-        index index.html index.htm index.nginx-debian.html;
-        server_name lt-2021-20.ml; # managed by Certbot
-
-
-        location / {
-
-                proxy_pass http://127.0.0.1:8081;
-
-                try_files $uri $uri/ =404;
-        }
-
-     listen [::]:443 ssl ipv6only=on; # managed by Certbot
-    listen 443 ssl; # managed by Certbot
-    ssl_certificate /etc/letsencrypt/live/www.lt-2021-20.ml/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/www.lt-2021-20.ml/privkey.pem; # managed by Certbot
-    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
-
-
-}
-server {
-    if ($host = lt-2021-20.ml) {
+    if ($host = www.lt-2021-20.ml) {
         return 301 https://$host$request_uri;
     } # managed by Certbot
 
 
         listen 80 ;
         listen [::]:80 ;
-    server_name lt-2021-20.ml;
+    server_name _;
     return 404; # managed by Certbot
 
+
+}
+
+server {
+
+        root /var/www;
+
+        # Add index.php to the list if you are using PHP
+        #index index.html index.htm index.nginx-debian.html;
+    server_name www.lt-2021-20.ml lt-2021-20.ml; # managed by Certbot
+
+
+        location / {
+                # First attempt to serve request as file, then
+                proxy_pass http://127.0.0.1:8081;
+                # as directory, then fall back to displaying a 404.
+                #try_files $uri $uri/ =404;
+        }
+
+        location /secret {
+                auth_basic "Protected Area";
+                auth_basic_user_file /var/www/secret/.htpasswd;
+
+                index secret.html;
+        }
+
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/www.lt-2021-20.ml/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/www.lt-2021-20.ml/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
 }
